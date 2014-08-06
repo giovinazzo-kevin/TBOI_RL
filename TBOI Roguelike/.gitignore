@@ -1,3 +1,0 @@
-$ cat .gitignore
-#ignores folder with psds and stuff
-/wip/*
