@@ -2,8 +2,10 @@ function Entity() {
 	this.name = 'Unnamed Entity';
 	this.sprite = resources['ent_sprite_default'];
 	this.info = {
-		health: 4,
-		maxhealth: 4,
+		health: 4.5,
+		maxhealth: 8,
+		soulhearts: 1.5,
+		eternalhearts: 0.5,
 		coins: '00',
 		keys: '00',
 		bombs: '00'

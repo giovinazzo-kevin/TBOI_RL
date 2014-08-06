@@ -22,10 +22,13 @@ function GameCore(width, height) {
 resources = {
 	'bg_basement' : new Sprite('bg_basement'),
 
+	'gui_halfheart' : new Sprite('spritesheet', 0, 0, 4, 8),
 	'gui_fullheart' : new Sprite('spritesheet', 0, 0, 8, 8),
 	'gui_emptyheart' : new Sprite('spritesheet', 8, 0, 8, 8),
-	'gui_soulheart' : new Sprite('spritesheet', 0, 8, 8, 8),
-	'gui_eternalheart' : new Sprite('spritesheet', 8, 8, 8, 8),
+	'gui_halfsoulheart' : new Sprite('spritesheet', 0, 8, 4, 8),
+	'gui_fullsoulheart' : new Sprite('spritesheet', 0, 8, 8, 8),
+	'gui_halfeternalheart' : new Sprite('spritesheet', 8, 8, 4, 8),
+	'gui_fulleternalheart' : new Sprite('spritesheet', 8, 8, 8, 8),
 	'gui_key' : new Sprite('spritesheet', 16, 0, 8, 8),
 	'gui_skeletonkey' : new Sprite('spritesheet', 24, 0, 8, 8),
 	'gui_coin' : new Sprite('spritesheet', 16, 8, 8, 8),
