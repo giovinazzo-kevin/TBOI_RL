@@ -5,14 +5,14 @@ $(function() {
 	var actor = new ent_Isaac();
 	//DUNGEON: Manages rooms
 	// + ROOMS: Manage entities, items and tiles
-	var dungeon = new Dungeon(0, 0);
+	var dungeon = new Dungeon(0, 0, 256, 160);
 	//GUI: Pools together data from an entity and its inventory and draws it on screen.
 	var gui = new GUI(game.width - 100, 0, 100, game.height);
 
 	var init = function() {
 		//Overriding dungeon.log so that the output is visible instead of printed to the console
 		dungeon.log = function(message) {
-			$('<p class="game_log">' + message + '</p>').appendTo('body');
+			$('<br><span class="game_log">' + message + '</span>').appendTo('body');
 		};
 		dungeon.init();
 		dungeon.bindent(actor); //"actor" will now receive input data from the player

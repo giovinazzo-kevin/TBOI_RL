@@ -35,8 +35,11 @@ resources = {
 	'gui_coin' : new Sprite('spritesheet', 16, 8, 8, 8),
 	'gui_bomb' : new Sprite('spritesheet', 24, 8, 8, 8),
 	'gui_slot' : new Sprite('spritesheet', 0, 16, 18, 18),
-	'gui_arrowr' : new Sprite('spritesheet', 20, 16, 12, 5),
-	'gui_arrowl' : new Sprite('spritesheet', 20, 21, 12, 5),
+
+	'map_doornormal_left' : new Sprite('spritesheet', 15, 34, 15, 28),
+	'map_doornormal_right' : new Sprite('spritesheet', 0, 34, 15, 28),
+	'map_doornormal_up' : new Sprite('spritesheet', 0, 64, 28, 15),
+	'map_doornormal_down' : new Sprite('spritesheet', 28, 64, 28, 15),
 
 	'ent_sprite_default' : new Sprite('spritesheet', 48, 0, 16, 16),
 	'ent_sprite_isaac' : new Sprite('spritesheet', 48, 16, 16, 16),
