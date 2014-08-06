@@ -6,6 +6,11 @@ function Dungeon(drawx, drawy) {
 	var rooms = [];
 	var current_room; //Only one room at a time is updated and drawn, obviously
 	var bound_entity; //The entity which will receive input from the player
+	var bound_entity_defupdate; //The default update method for a bound entity. Overridden by manual input and later restored.
+
+	var override_update = function(delta) {
+
+	};
 
 	//Called whenever the game must inform the player of something
 	//The suggested use would be to display output directly on the page rather than in the console window
@@ -14,7 +19,10 @@ function Dungeon(drawx, drawy) {
 	};
 
 	this.bindent = function(entity) {
+		if(bound_entity && bound_entity_defupdate) bound_entity.update = bound_entity_defupdate;
 		bound_entity = entity;
+		bound_entity_defupdate = bound_entity.update;
+		bound_entity.update = override_update;
 	};
 	
 	this.init = function() {
@@ -29,7 +37,8 @@ function Dungeon(drawx, drawy) {
 		switch(type) {
 			case 'basement':
 			default:
-				current_room = new Room(this.x, this.y);
+				current_room = new Room('bg_basement', this.x, this.y);
+				current_room.draw_overlay = true;
 			break;
 		};
 		this.log('&nbsp;&nbsp;&nbsp;&nbsp;... Done.');
@@ -50,6 +59,7 @@ function Room(room_bg, drawx, drawy) {
 	var drawx = drawx || 0;
 	var drawy = drawy || 0;
 
+	this.draw_overlay = false;
 	this.tiles = [];
 	this.entities = [];
 	this.items = [];
@@ -66,7 +76,7 @@ function Room(room_bg, drawx, drawy) {
 
 	this.draw = function(canvas) {
 		resources[room_bg].draw(canvas, drawx, drawy);
-
+		if(this.draw_overlay) resources['bg_intro_overlay'].draw(canvas, drawx, drawy);
 		$.each(this.tiles, function(index) {
 			this.tiles[i].draw(delta);
 		});

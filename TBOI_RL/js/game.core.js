@@ -21,6 +21,7 @@ function GameCore(width, height) {
 
 resources = {
 	'bg_basement' : new Sprite('bg_basement'),
+	'bg_intro_overlay' : new Sprite('bg_intro_overlay'),
 
 	'gui_halfheart' : new Sprite('spritesheet', 0, 0, 4, 8),
 	'gui_fullheart' : new Sprite('spritesheet', 0, 0, 8, 8),

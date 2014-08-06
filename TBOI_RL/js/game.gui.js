@@ -11,7 +11,6 @@ function GUI(drawx, drawy, width, height) {
 		bound_entity = entity;
 	};
 
-	//Used for coins, bombs and keys
 	var draw_icon = function(canvas, icon, text, x, y) {
 		icon.draw(canvas, x, y);
 		x += icon.width;
@@ -79,5 +78,7 @@ function GUI(drawx, drawy, width, height) {
 
 		//Draw 'Tear' and 'Item' boxes next to the entity's sprite
 		bound_entity.sprite.draw(canvas, this.x + this.width / 2 - bound_entity.sprite.width / 2, ret.y + 25);
+		//Draw ent.name
+		canvas.fillText(bound_entity.name, this.x + this.width / 2 - canvas.measureText(bound_entity.name).width / 2, ret.y + 35 + bound_entity.sprite.height);
 	};
 };

@@ -3,9 +3,9 @@
 		this.sprite = resources['ent_sprite_default'];
 		this.info = {
 			health: 4,
-			maxhealth: 8,
-			soulhearts: 2.5,
-			eternalhearts: 0.5,
+			maxhealth: 4,
+			soulhearts: 0,
+			eternalhearts: 0,
 			coins: '00',
 			keys: '00',
 			bombs: '00'
