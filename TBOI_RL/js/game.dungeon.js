@@ -15,12 +15,12 @@ function Dungeon() {
 	};
 	
 	this.init = function() {
-		this.log("Initializing dungeon...");
-		this.log("&nbsp;&nbsp;&nbsp;&nbsp;... Done.");
+		this.log('Initializing dungeon...');
+		this.log('&nbsp;&nbsp;&nbsp;&nbsp;... Done.');
 	};
 
 	this.gen = function(type) {
-		this.log("Generating dungeon...");
+		this.log('Generating dungeon...');
 		type = type || 'basement';
 		//TODO: Actually add generation code
 		switch(type) {
@@ -29,7 +29,7 @@ function Dungeon() {
 				current_room = new Room();
 			break;
 		};
-		this.log("&nbsp;&nbsp;&nbsp;&nbsp;... Done.");
+		this.log('&nbsp;&nbsp;&nbsp;&nbsp;... Done.');
 	};
 
 	this.update = function(delta) {
@@ -47,7 +47,7 @@ function Room() {
 	var entities = [];
 	var items = [];
 
-	Room.background = new Sprite("background");
+	Room.background = new Sprite('room_bg');
 
 	this.update = function(delta) {
 		//Tiles don't need to update individually

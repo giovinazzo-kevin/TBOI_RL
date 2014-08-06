@@ -7,7 +7,7 @@ $(function() {
 	// + ROOMS: Manage entities, items and tiles
 	var dungeon = new Dungeon();
 	//GUI: Pools together data from an entity and its inventory and draws it on screen.
-	var gui = new GUI();
+	var gui = new GUI(game.width - 100, 0, 100, game.height);
 
 	var init = function() {
 		//Overriding dungeon.log so that the output is visible instead of printed to the console
@@ -17,7 +17,6 @@ $(function() {
 		dungeon.init();
 		dungeon.bindent(actor); //"actor" will now receive input data from the player
 		gui.bindent(actor); //gui will default to showing "actor"'s data.
-
 		dungeon.gen(); //Finally, generate the dungeon.
 	};
 
