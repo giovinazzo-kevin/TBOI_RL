@@ -3,21 +3,20 @@ function GameCore(width, height) {
 	this.height = height;
 	this.framesPerSecond = 30;
 
-    this.init = function() {
-		var canvasElement = $("<canvas width='" + this.width + "' height='" + this.height + "'>Your browser doesn't seem to support HTML5 canvases.</canvas>");
-		var canvas = canvasElement.get(0).getContext("2d");
-		canvasElement.appendTo('body');
-		var t = this;
-		setInterval(function() {
-			t.update(1000 / t.framesPerSecond);
-			t.draw(canvas);
-		}, 1000 / t.framesPerSecond);
-	};
-
 	this.update = $.noop;
 	this.draw = $.noop;
 
-	this.init();
+    var core_init = function(g) {
+		var canvasElement = $("<canvas width='" + g.width + "' height='" + g.height + "'>Your browser doesn't seem to support HTML5 canvases.</canvas>");
+		var canvas = canvasElement.get(0).getContext("2d");
+		canvasElement.appendTo('body');
+		setInterval(function() {
+			g.update(1000 / g.framesPerSecond);
+			g.draw(canvas);
+		}, 1000 / g.framesPerSecond);
+	};
+
+	core_init(this);
 };
 
 const colors = {
