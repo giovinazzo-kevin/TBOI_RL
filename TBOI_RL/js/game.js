@@ -5,7 +5,7 @@ $(function() {
 	var actor = new ent_Isaac();
 	//DUNGEON: Manages rooms
 	// + ROOMS: Manage entities, items and tiles
-	var dungeon = new Dungeon();
+	var dungeon = new Dungeon(0, 0);
 	//GUI: Pools together data from an entity and its inventory and draws it on screen.
 	var gui = new GUI(game.width - 100, 0, 100, game.height);
 
@@ -26,7 +26,7 @@ $(function() {
 
 	game.draw = function(canvas) {
 		//Clear the buffer
-		canvas.fillStyle = colors.cornflowerblue;
+		canvas.fillStyle = '#FFF';
 		canvas.fillRect(0, 0, this.width, this.height);
 		//Let the main classes handle the drawing
 		dungeon.draw(canvas);
