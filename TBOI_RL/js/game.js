@@ -20,7 +20,7 @@ $(function() {
 		dungeon.gen(); //Finally, generate the dungeon.
 		var bomb = new ent_Bomb();
 		bomb.x = 40;
-		bomb.y = 40;
+		bomb.y = 100;
 		actor.name = 'Kappa';
 		dungeon.spawn(bomb);
 	};
