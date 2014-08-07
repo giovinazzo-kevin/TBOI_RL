@@ -18,6 +18,11 @@ $(function() {
 		dungeon.bindent(actor); //"actor" will now receive input data from the player
 		gui.bindent(actor); //gui will default to showing "actor"'s data.
 		dungeon.gen(); //Finally, generate the dungeon.
+		var bomb = new ent_Bomb();
+		bomb.x = 40;
+		bomb.y = 40;
+		actor.name = 'Kappa';
+		dungeon.spawn(bomb);
 	};
 
 	game.update = function(delta) {
