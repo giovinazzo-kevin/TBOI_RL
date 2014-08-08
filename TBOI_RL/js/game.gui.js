@@ -32,9 +32,9 @@ function GUI(drawx, drawy, width, height) {
 		//Red hearts
 		for (var i = 0; i < e.maxhealth; i ++) {
 			var ret = heart_coords(i, width);
-			if(i + 0.5 < e.health) {
+			if(i < e.health) {
 				resources['gui_fullheart'].draw(canvas, x + ret.x, y + ret.y);
-			} else if(i - e.health == -1 % e.health) {
+			} else if(i % e.health == 0.5) {
 				resources['gui_emptyheart'].draw(canvas, x + ret.x, y + ret.y);
 				resources['gui_halfheart'].draw(canvas, x + ret.x, y + ret.y);
 			} 

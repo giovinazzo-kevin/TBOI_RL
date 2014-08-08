@@ -17,6 +17,7 @@ function Dungeon(drawx, drawy, width, height) {
 		current_room.draw(canvas);
 	};
 
+//####### GAMEOVER / BINDENT SECTION #######\\
 	this.gameOver = function(ent_killer) {
 		var base_draw = this.draw;
 		this.draw = (function() {
@@ -51,28 +52,21 @@ function Dungeon(drawx, drawy, width, height) {
 				canvas.font = 'bold 8px "Segoe Script"';
 				canvas.fillText("               XOXO " + bound_entity.name.toUpperCase(), px + 5, py + 122);
 				//Draw killer
-				ent_killer.sprite.draw(canvas, px + 72, py + 48);
+				ent_killer.sprite.draw(canvas, px + 73, py + 48);
 				canvas.restore();
 			};
 		}());
 	};
 
-	this.spawn = function(entity) {
-		current_room.entities.push(entity);
-	};
-
-	//Called whenever the game must inform the player of something
-	//It should be overridden
-	this.log = function(message) { 
-		console.log(message); 
-	};
-
+	var old_e, old_shift;
 	this.bindent = function(entity) {
 		var dungeon = this;
 		bound_entity = entity;
+		bound_entity.controlledByHuman = true;
+
 		//Replace update with a more convenient method
-		bound_entity.update = function(delta) {
-		bound_entity.applyForce(0, 0, delta);
+		bound_entity.update = function(entities, delta) {
+			bound_entity.applyForce(0, 0, delta);
 			var multiplier = 1;
 			//If moving diagonally, penalize the movement accordingly
 			if((keydown.w || keydown.s) && (keydown.a || keydown.d)) multiplier /= Math.sqrt(2);
@@ -80,13 +74,26 @@ function Dungeon(drawx, drawy, width, height) {
 			if(keydown.a) bound_entity.applyForce(-multiplier, 0, delta);
 			if(keydown.s) bound_entity.applyForce(0, multiplier, delta);
 			if(keydown.d) bound_entity.applyForce(multiplier, 0, delta);
-		};
+			if(bound_entity.info.bombs > 0 && ((keydown.shift && !old_shift) || (keydown.e && !old_e))) {
+				bound_entity.info.bombs--;
+				var bomb = new ent_Bomb();
+				bomb.x = bound_entity.x;
+				bomb.y = bound_entity.y;
+				bomb.velocity_x = bound_entity.velocity_x * 4;
+				bomb.velocity_y = bound_entity.velocity_y * 4;
+				dungeon.spawn(bomb, 'push');
+			}
+
+				old_e = keydown.e;
+				old_shift = keydown.shit;
+		};	
 		//This is basically the death animation
 		bound_entity.onDeath = function(killer) {
+			PauseMusic();
 			var darkscreen = new Entity();
 			//Fade effect
 			darkscreen.transparency = 0;
-			darkscreen.update = function(delta) {
+			darkscreen.update = function(entities, delta) {
 				if(this.transparency < 0.4) {
 					this.transparency += 0.001 * delta;
 				}
@@ -108,7 +115,7 @@ function Dungeon(drawx, drawy, width, height) {
 			//Replace entity's update and draw with a death animation
 			var elapsed = 0;
 			bound_entity.transparency = 1;
-			bound_entity.update = function(delta) {
+			bound_entity.update = function(entities, delta) {
 				this.x += Math.sin((elapsed += delta)) * 1;
 				if(this.transparency > 0.1) {
 					this.transparency -= 0.001 * delta;
@@ -116,6 +123,7 @@ function Dungeon(drawx, drawy, width, height) {
 					this.update = $.noop;
 					this.draw = $.noop;
 					//Death anim is over, we can safely call the GG screen
+					bound_entity.dead = true;
 					dungeon.gameOver(killer);
 				}
 			};
@@ -124,19 +132,35 @@ function Dungeon(drawx, drawy, width, height) {
 				this.sprite.draw(canvas, this.x, this.y);
 				canvas.globalAlpha = 1;
 			};
-			//Respawn player so that he's in front of everything else
-			current_room.entities.splice(0, 1);
-			dungeon.spawn(bound_entity);
+
+			dungeon.bringToFront(darkscreen);
+			dungeon.bringToFront(holybeam);
+			dungeon.bringToFront(bound_entity);
 		};
+	};
+//####### GAMEOVER / BINDENT SECTION #######\\
+
+	this.spawn = function(entity, mode) {
+		mode = mode || 'push';
+		if(mode == 'unshift')
+			current_room.entities.unshift(entity);
+		else if(mode == 'push')
+			current_room.entities.push(entity);
+	};
+
+	this.bringToFront = function(entity) {
+		var i = current_room.entities.indexOf(entity);
+		current_room.entities.splice(i, 1);
+		current_room.entities.unshift(entity);
 	};
 	
 	this.init = function() {
-		this.log('Initializing dungeon...');
-		this.log('&nbsp;&nbsp;&nbsp;&nbsp;... Done.');
+		Log('Initializing dungeon...');
+		Log('&nbsp;&nbsp;&nbsp;&nbsp;... Done.');
 	};
 
 	this.gen = function(type) {
-		this.log('Generating dungeon...');
+		Log('Generating dungeon...');
 		type = type || 'basement';
 		//TODO: Actually add generation code
 		switch(type) {	
@@ -147,9 +171,11 @@ function Dungeon(drawx, drawy, width, height) {
 				bound_entity.x = this.x + this.width / 2 - bound_entity.sprite.width / 2;
 				bound_entity.y = this.y + this.height / 2 - bound_entity.sprite.height / 2;
 				this.spawn(bound_entity);
+				this.spawn(new ent_Fly());
+				PlayMusic(resources['music_basement']);
 			break;
 		};
-		this.log('&nbsp;&nbsp;&nbsp;&nbsp;... Done.');
+		Log('&nbsp;&nbsp;&nbsp;&nbsp;... Done.');
 	};
 };
 
@@ -173,28 +199,43 @@ function Room(drawx, drawy) {
 
 	this.update = function(delta) {
 		var ents = this.entities;
-		$.each(ents, function(i, e) {
-			e.update(delta);
+		for (var i = this.entities.length - 1; i >= 0; i--) {
+			var e = this.entities[i];
+			e.update(this.entities, delta);
+
+			if(e.dead) {
+				this.entities.splice(i, 1);	
+				continue;
+			}
 			//Making sure each entity stays within the boundaries
-			if(e.x < Room.BOUNDARIES.x) e.x = Room.BOUNDARIES.x;
-			else if(e.x + e.sprite.width > Room.BOUNDARIES.x2) e.x = Room.BOUNDARIES.x2 - e.sprite.width;
-			if(e.y < Room.BOUNDARIES.y) e.y = Room.BOUNDARIES.y;
-			else if(e.y + e.sprite.height > Room.BOUNDARIES.y2) e.y = Room.BOUNDARIES.y2 - e.sprite.height;
-		
+			if(!e.ignoresBoundaries) {
+				if(e.x < Room.BOUNDARIES.x) {
+					e.x = Room.BOUNDARIES.x;
+				}
+				else if(e.x + e.sprite.width > Room.BOUNDARIES.x2) {
+					e.x = Room.BOUNDARIES.x2 - e.sprite.width;
+				}
+				if(e.y < Room.BOUNDARIES.y) {
+					e.y = Room.BOUNDARIES.y;
+				}
+				else if(e.y + e.sprite.height > Room.BOUNDARIES.y2) {
+					e.y = Room.BOUNDARIES.y2 - e.sprite.height;
+				}
+			}
 			//Collisions are handled by the Room so that entities themselves stay simple
 			//Collision checks for each entity pairing
 			$.each(ents, function(j, e2) {
 				if(e2 == e) return;
 				if(e.collides(e2)) e.onCollision(e2);				
 			});
-		});
+		}
 	};
 
 	this.draw = function(canvas) {
 		this.background.draw(canvas, drawx, drawy);
 		if(this.draw_overlay) resources['bg_intro_overlay'].draw(canvas, drawx, drawy);
-		$.each(this.entities, function(i, e) {
-			e.draw(canvas);
-		});
+		for (var i = this.entities.length - 1; i >= 0; i--) {
+			this.entities[i].draw(canvas);
+		};
 	};
 };

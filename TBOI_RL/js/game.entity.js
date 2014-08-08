@@ -2,8 +2,11 @@ function Entity() {
 	Entity.MAX_HEALTH = 20;
 	Entity.FRICTION = 0.77;
 
+	this.ignoresBoundaries = false;
+	this.controlledByHuman = false;
 	this.name = 'Unnamed Entity';
 	this.sprite = resources['ent_sprite_default'];
+	this.damagesOnTouch = false;
 	this.info = {
 		health: 4,
 		maxhealth: 4,
@@ -53,25 +56,42 @@ function Entity() {
 	};
 
 	this.onCollision = function(e) {
-		this.takeDamage(e, 0.5);
+		if(this.damagesOnTouch) e.takeDamage(this, 0.5);
 	};
 
-	this.takeDamage = function(attacker, damage) {
+	this.knockback = function(away_from, strength, duration) {
+		var angle = Math.atan2(this.y - away_from.y, this.x - away_from.x);
+		this.applyForce(Math.cos(angle) * strength, Math.sin(angle) * strength, duration);
+	};
+
+	this.bursttowards = function(towards, strength, duration) {
+		var angle = -Math.atan2(this.y - towards.y, this.x - towards.x);
+		this.applyForce(Math.cos(angle) * strength, Math.sin(angle) * strength, duration);
+	};
+
+	this.takeDamage = function(attacker, damage, knockback) {
+		knockback = knockback || true;
+
 		if(this.info.soulhearts > 0)
-			this.info.soulhearts = Math.min(this.info.soulhearts - damage, 0);
+			this.info.soulhearts = Math.max(this.info.soulhearts - damage, 0);
 		else
-			this.info.health = Math.min(this.info.health - damage, 0);
-		
-		if(this.info.health == 0)
+			this.info.health = Math.max(this.info.health - damage, 0);
+
+		//Apply knockback
+		if(knockback) this.knockback(attacker, damage * 10, 20);
+
+		if(this.info.health == 0) {
 			this.onDeath(attacker);
+			this.takeDamage = $.noop;
+		};
 	};
 
 	this.onDeath = function(killer) {
 
 	};
 
-	this.update = function(delta) {
-
+	this.update = function(entities, delta) {
+		this.applyForce(0, 0, delta);
 	};
 
 	this.draw = function(canvas) {
@@ -82,13 +102,70 @@ function Entity() {
 function ent_Bomb() {
 	Entity.call(this);
 	this.name = 'Bomb';
-	this.sprite = resources['ent_sprite_bomb'];
-	this.update = function(delta) {
+	this.primeTime = 1200;
+	this.areaOfEffect = 48;
+	this.damage = 1;
+	this.sprite = new Animation(resources['ent_frames_bomb_primed'], 100);
 
+	//Bombs don't give a shit
+	this.knockback = $.noop;
+
+	this.update = function(entities, delta) {
+		this.applyForce(0, 0, delta);
+		this.sprite.update(delta); //It's an animation, remember.
 	};
+
+	var bomb = this;
+	var id = setInterval(function() { bomb.explode(); }, bomb.primeTime);
+	this.explode = function() {
+		clearInterval(id);
+		this.sprite = new Animation(resources['ent_frames_bomb_boom'], 100);
+		bomb.update = function(entities, delta) {
+			//PROCEED TO DEAL AOE DAMAGE
+			$.each(entities, function(i, e) {
+				if(e == bomb) return;
+				var dist = Distance2D(e, bomb);
+				if(dist <= bomb.areaOfEffect) { 
+					e.takeDamage(bomb, bomb.damage);
+				}			
+			});
+			bomb.update = function(entities, delta){this.sprite.update(delta);};
+		};
+
+		bomb.sprite.onCompletion = function() {
+			bomb.sprite = resources['ent_sprite_bomb'];
+			bomb.dead = true;
+		};
+	}
+
 };
 ent_Bomb.prototype = new Entity;
 //Alive entities (Enemies, playable characters...)
+
+function ent_Fly() {
+	Entity.call(this);
+	this.name = 'Black Fly';
+	this.sprite = resources['ent_sprite_blackfly'];
+	this.damage = 0.5;
+	this.damagesOnTouch = true;
+	this.x = 40;
+	this.y = 40;
+
+	this.update = function(entities, delta) {
+		this.applyForce(0, 0, delta);
+		//Find closest entity that is controlledByHuman
+		var closest;
+		$.each(entities, function(i, e) {
+			if(e == this) return;
+			dist = Distance2D(this, e);
+			if(!closest || dist < Distance2D(closest)) closest = e;
+		});
+
+		if(closest) this.bursttowards(closest, 10, 20);
+	};
+};
+ent_Fly.prototype = new Entity;
+
 function ent_Isaac() {
 	Entity.call(this);
 	this.name = 'Isaac';
